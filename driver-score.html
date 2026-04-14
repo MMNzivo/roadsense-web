@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoadSense — Driver Scores</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  .driver-detail-panel {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(7,11,20,0.88); backdrop-filter: blur(6px);
+    z-index: 2000; padding: 24px;
+    overflow-y: auto;
+  }
+  .driver-detail-panel.open { display: flex; justify-content: center; align-items: flex-start; }
+  .detail-box {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); width: 100%; max-width: 860px;
+    animation: slideUp 0.25s ease;
+  }
+  .detail-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 24px; border-bottom: 1px solid var(--border);
+  }
+  .detail-avatar {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: var(--font-head); font-weight: 700; font-size: 1.3rem;
+    color: var(--bg-root); flex-shrink: 0;
+  }
+  .detail-meta h2 { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; }
+  .detail-meta .sub { color: var(--text-secondary); font-size: 0.85rem; margin-top: 3px; display: flex; gap: 12px; }
+  .detail-close {
+    margin-left: auto; background: none; border: none;
+    color: var(--text-muted); cursor: pointer; padding: 4px;
+  }
+  .detail-close:hover { color: var(--danger); }
+  .detail-close svg { width: 22px; height: 22px; }
+  .detail-body { padding: 24px; }
+  .score-hero {
+    display: flex; align-items: center; gap: 20px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 20px;
+  }
+  .score-big {
+    position: relative; width: 100px; height: 100px; flex-shrink: 0;
+  }
+  .deduction-list { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .deduction-row {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.88rem;
+  }
+  .deduction-row .lbl { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+  .deduction-row .count { font-family: var(--font-mono); font-weight: 600; }
+  .detail-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .detail-tab {
+    padding: 10px 18px; font-family: var(--font-head); font-size: 0.9rem;
+    color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all var(--transition);
+  }
+  .detail-tab:hover { color: var(--text-primary); }
+  .detail-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  #miniMap { height: 200px; border-radius: var(--radius-sm); margin-bottom: 16px; }
+  .events-feed { max-height: 280px; overflow-y: auto; }
+  .event-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.85rem;
+  }
+  .event-icon {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: grid; place-items: center; flex-shrink: 0;
+    font-size: 0.75rem;
+  }
+  .filter-bar {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px; flex-wrap: wrap;
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+    </div>
+    <span class="sidebar-brand">ROADSENSE</span>
+    <button class="sidebar-toggle" id="sidebarToggle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Navigation</div>
+    <a href="index.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      <span>Live Map</span>
+    </a>
+    <a href="maps.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span>Road Analytics</span>
+    </a>
+    <a href="driver-score.html" class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>Driver Scores</span>
+    </a>
+    <div class="nav-section-label">Account</div>
+    <a href="profile.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+    <a href="about.html" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>About</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar" id="navUserAvatar">G</div>
+      <div class="user-info">
+        <div class="user-name" id="navUserName">Guest</div>
+        <div class="user-role" id="navUserRole">Not logged in</div>
+      </div>
+    </div>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- MAIN -->
+<div class="main-wrapper">
+  <header class="topbar">
+    <button class="hamburger" id="hamburger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="topbar-title">Driver Scores</span>
+    <div class="topbar-actions">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="driverSearch" placeholder="Search driver or plate...">
+      </div>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <div class="page-header">
+      <div class="breadcrumb"><span>Dashboard</span> / Driver Scores</div>
+      <h1>Driver Behaviour Scores</h1>
+      <p>Real-time monitoring of driver safety performance across your fleet</p>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-label">Total Drivers</div>
+        <div class="stat-value" id="sTotalDrivers">—</div>
+        <div class="stat-sub">Registered in system</div>
+        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100 8 4 4 0 000-8zm10 14v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-label">Avg. Score</div>
+        <div class="stat-value" id="sAvgScore">—</div>
+        <div class="stat-sub">Fleet average</div>
+      </div>
+      <div class="stat-card danger">
+        <div class="stat-label">At Risk</div>
+        <div class="stat-value" id="sAtRisk">—</div>
+        <div class="stat-sub">Score below 60</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-label">Excellent</div>
+        <div class="stat-value" id="sExcellent">—</div>
+        <div class="stat-sub">Score above 85</div>
+      </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <button class="btn btn-primary btn-sm active-filter" onclick="filterBy('all')" id="fAll">All Drivers</button>
+      <button class="btn btn-ghost btn-sm" onclick="filterBy('fleet')" id="fFleet">Fleet</button>
+      <button class="btn btn-ghost btn-sm" onclick="filterBy('taxi')" id="fTaxi">Taxi</button>
+      <button class="btn btn-ghost btn-sm" onclick="filterBy('personal')" id="fPersonal">Personal</button>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" onclick="sortBy('score')">Sort: Score</button>
+        <button class="btn btn-ghost btn-sm" onclick="sortBy('name')">Sort: Name</button>
+      </div>
+    </div>
+
+    <!-- DRIVERS GRID -->
+    <div class="drivers-grid" id="driversGrid">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DRIVER DETAIL PANEL -->
+<div class="driver-detail-panel" id="detailPanel">
+  <div class="detail-box">
+    <div class="detail-header">
+      <div class="detail-avatar" id="detailAvatar">J</div>
+      <div class="detail-meta">
+        <h2 id="detailName">Driver Name</h2>
+        <div class="sub">
+          <span id="detailPlate" style="font-family:var(--font-mono);background:var(--bg-input);padding:2px 8px;border-radius:4px">KXX 000X</span>
+          <span id="detailCategory" style="text-transform:capitalize"></span>
+          <span id="detailStatus" style="color:var(--accent)">● Online</span>
+        </div>
+      </div>
+      <button class="detail-close" onclick="closeDetail()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="detail-body">
+      <!-- Score Hero -->
+      <div class="score-hero">
+        <div class="score-big" id="detailScoreRing"></div>
+        <div class="deduction-list">
+          <div style="font-family:var(--font-head);font-size:0.75rem;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Score Breakdown</div>
+          <div class="deduction-row">
+            <span class="lbl">🚨 Harsh Brakes</span>
+            <span class="count danger" id="dHarshBrake">0</span>
+          </div>
+          <div class="deduction-row">
+            <span class="lbl">↩ Sharp Corners</span>
+            <span class="count amber" id="dCorners">0</span>
+          </div>
+          <div class="deduction-row">
+            <span class="lbl">💨 Speed Violations</span>
+            <span class="count amber" id="dSpeeding">0</span>
+          </div>
+          <div class="deduction-row">
+            <span class="lbl">🕳 Potholes Hit</span>
+            <span class="count" id="dPotholes">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE SENSORS -->
+      <div style="margin-bottom:16px">
+        <div style="font-family:var(--font-head);font-size:0.75rem;letter-spacing:1px;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">Live Sensor Data</div>
+        <div class="live-grid">
+          <div class="live-chip"><div class="lbl">Speed</div><div class="val" id="livSpeed">—<span class="unit">km/h</span></div></div>
+          <div class="live-chip"><div class="lbl">Accel X</div><div class="val" id="livAx">—<span class="unit">g</span></div></div>
+          <div class="live-chip"><div class="lbl">Accel Y</div><div class="val" id="livAy">—<span class="unit">g</span></div></div>
+          <div class="live-chip"><div class="lbl">Accel Z</div><div class="val" id="livAz">—<span class="unit">g</span></div></div>
+          <div class="live-chip"><div class="lbl">Gyro X</div><div class="val" id="livGx">—<span class="unit">°/s</span></div></div>
+          <div class="live-chip"><div class="lbl">Temp</div><div class="val" id="livTemp">—<span class="unit">°C</span></div></div>
+        </div>
+      </div>
+
+      <!-- TABS: Map / Events -->
+      <div class="detail-tabs">
+        <div class="detail-tab active" onclick="switchTab('map')">📍 Location</div>
+        <div class="detail-tab" onclick="switchTab('events')">📋 Past Events</div>
+      </div>
+
+      <div class="tab-content active" id="tabMap">
+        <div id="miniMap"></div>
+        <div id="coordsLine" style="font-family:var(--font-mono);font-size:0.78rem;color:var(--text-secondary)"></div>
+      </div>
+
+      <div class="tab-content" id="tabEvents">
+        <div class="events-feed" id="eventsFeed">
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <p>No events recorded yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/app.js"></script>
+<script>
+let allDrivers = [...MOCK.drivers];
+let filtered   = [...allDrivers];
+let miniMap, currentFilter = 'all';
+
+function renderStats() {
+  document.getElementById('sTotalDrivers').textContent = allDrivers.length;
+  const avg = allDrivers.reduce((a,d) => a+d.score,0)/allDrivers.length;
+  document.getElementById('sAvgScore').textContent = avg.toFixed(0);
+  document.getElementById('sAtRisk').textContent   = allDrivers.filter(d=>d.score<60).length;
+  document.getElementById('sExcellent').textContent= allDrivers.filter(d=>d.score>=85).length;
+}
+
+function renderDrivers(list) {
+  const grid = document.getElementById('driversGrid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;margin:0 auto 12px;opacity:0.3"><circle cx="12" cy="12" r="10"/></svg><p>No drivers found</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(d => {
+    const color = ScoreUtils.color(d.score);
+    const online = d.speed_kmh > 0;
+    const circ = 2 * Math.PI * 27;
+    const dash = (d.score/100)*circ;
+    return `
+    <div class="driver-card" onclick="openDetail('${d.id}')">
+      ${online ? `<div class="driver-status"><span class="dot"></span>Online</div>` : `<div class="driver-status" style="color:var(--text-muted)">Offline</div>`}
+      <div class="driver-card-header">
+        <div class="driver-avatar" style="background:linear-gradient(135deg,${color},${color}88)">${d.name[0]}</div>
+        <div>
+          <div class="driver-name">${d.name}</div>
+          <div class="driver-plate">${d.plate}</div>
+        </div>
+      </div>
+      <div class="score-ring-wrap">
+        <div class="score-ring" style="position:relative;width:64px;height:64px">
+          <svg width="64" height="64" viewBox="0 0 64 64" style="transform:rotate(-90deg)">
+            <circle cx="32" cy="32" r="27" fill="none" stroke="#162032" stroke-width="5"/>
+            <circle cx="32" cy="32" r="27" fill="none" stroke="${color}" stroke-width="5"
+              stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ-dash}"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+            font-family:'Rajdhani',sans-serif;font-weight:700;color:${color};font-size:1rem">${Math.round(d.score)}</div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-head);font-size:1rem;font-weight:700;color:${color}">${ScoreUtils.label(d.score)}</div>
+          <div class="score-label">${d.category} · ${online?`${d.speed_kmh} km/h`:'Parked'}</div>
+        </div>
+      </div>
+      <div class="driver-metrics">
+        <div class="metric-chip" style="color:var(--danger)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div><div class="val">${d.harsh_brakes}</div><div class="lbl">Harsh Brakes</div></div>
+        </div>
+        <div class="metric-chip" style="color:var(--amber)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+          <div><div class="val">${d.sharp_corners}</div><div class="lbl">Corners</div></div>
+        </div>
+        <div class="metric-chip" style="color:var(--info)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <div><div class="val">${d.speed_violations}</div><div class="lbl">Speeding</div></div>
+        </div>
+        <div class="metric-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+          <div><div class="val">${d.potholes_hit}</div><div class="lbl">Potholes</div></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterBy(cat) {
+  currentFilter = cat;
+  filtered = cat === 'all' ? [...allDrivers] : allDrivers.filter(d => d.category === cat);
+  renderDrivers(filtered);
+  document.querySelectorAll('[id^="f"]').forEach(b => { b.className = 'btn btn-ghost btn-sm'; });
+  const map = {all:'fAll',fleet:'fFleet',taxi:'fTaxi',personal:'fPersonal'};
+  if (map[cat]) document.getElementById(map[cat]).className = 'btn btn-primary btn-sm';
+}
+
+function sortBy(key) {
+  if (key === 'score') filtered.sort((a,b) => b.score - a.score);
+  if (key === 'name')  filtered.sort((a,b) => a.name.localeCompare(b.name));
+  renderDrivers(filtered);
+}
+
+function openDetail(id) {
+  const d = allDrivers.find(dr => dr.id === id);
+  if (!d) return;
+  const color = ScoreUtils.color(d.score);
+  const circ = 2 * Math.PI * 45;
+  const dash = (d.score/100)*circ;
+
+  document.getElementById('detailAvatar').textContent = d.name[0];
+  document.getElementById('detailAvatar').style.background = `linear-gradient(135deg,${color},${color}88)`;
+  document.getElementById('detailName').textContent = d.name;
+  document.getElementById('detailPlate').textContent = d.plate;
+  document.getElementById('detailCategory').textContent = d.category;
+  document.getElementById('detailStatus').textContent = d.speed_kmh > 0 ? '● Online' : '● Offline';
+  document.getElementById('detailStatus').style.color = d.speed_kmh > 0 ? 'var(--accent)' : 'var(--text-muted)';
+
+  // Score ring (100px)
+  document.getElementById('detailScoreRing').innerHTML = `
+    <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg)">
+      <circle cx="50" cy="50" r="45" fill="none" stroke="#162032" stroke-width="6"/>
+      <circle cx="50" cy="50" r="45" fill="none" stroke="${color}" stroke-width="6"
+        stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ-dash}"/>
+    </svg>
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      font-family:'Rajdhani',sans-serif;font-weight:700">
+      <span style="font-size:1.5rem;color:${color}">${Math.round(d.score)}</span>
+      <span style="font-size:0.7rem;color:var(--text-muted)">${ScoreUtils.label(d.score)}</span>
+    </div>`;
+
+  document.getElementById('dHarshBrake').textContent = d.harsh_brakes;
+  document.getElementById('dCorners').textContent    = d.sharp_corners;
+  document.getElementById('dSpeeding').textContent   = d.speed_violations;
+  document.getElementById('dPotholes').textContent   = d.potholes_hit;
+
+  // Live sensors (mock)
+  document.getElementById('livSpeed').innerHTML = `${d.speed_kmh}<span class="unit">km/h</span>`;
+  document.getElementById('livAx').innerHTML    = `0.12<span class="unit">g</span>`;
+  document.getElementById('livAy').innerHTML    = `0.05<span class="unit">g</span>`;
+  document.getElementById('livAz').innerHTML    = `0.98<span class="unit">g</span>`;
+  document.getElementById('livGx').innerHTML    = `1.3<span class="unit">°/s</span>`;
+  document.getElementById('livTemp').innerHTML  = `28.4<span class="unit">°C</span>`;
+
+  // Events feed
+  const events = MOCK.roadEvents.slice(0,3);
+  document.getElementById('eventsFeed').innerHTML = events.map(e => {
+    const c = {critical:'var(--danger)',high:'#FF8C00',medium:'var(--amber)',low:'var(--accent)'}[e.severity];
+    return `<div class="event-row">
+      <div class="event-icon" style="background:${c}22;color:${c}">⚠</div>
+      <div>
+        <div style="font-size:0.88rem;font-weight:600">${Fmt.eventType(e.type)}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted)">${Fmt.date(e.timestamp)} · <span class="badge-severity ${e.severity}">${e.severity}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('coordsLine').textContent = `📍 ${Fmt.coords(d.lat, d.lng)}`;
+
+  document.getElementById('detailPanel').classList.add('open');
+  switchTab('map');
+
+  // Init mini map
+  setTimeout(() => {
+    if (miniMap) { miniMap.remove(); miniMap = null; }
+    miniMap = L.map('miniMap', { zoomControl: false }).setView([d.lat, d.lng], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(miniMap);
+    L.circleMarker([d.lat, d.lng], {
+      radius:10, fillColor:color, color:'#fff', fillOpacity:0.9, weight:2
+    }).addTo(miniMap).bindPopup(d.name).openPopup();
+  }, 50);
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.detail-tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0&&name==='map')||(i===1&&name==='events'));
+  });
+  document.getElementById('tabMap').classList.toggle('active', name==='map');
+  document.getElementById('tabEvents').classList.toggle('active', name==='events');
+  if (name==='map' && miniMap) setTimeout(()=>miniMap.invalidateSize(),50);
+}
+
+// Search
+document.getElementById('driverSearch').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase();
+  const list = (currentFilter==='all'?allDrivers:allDrivers.filter(d=>d.category===currentFilter))
+    .filter(d => d.name.toLowerCase().includes(q) || d.plate.toLowerCase().includes(q));
+  renderDrivers(list);
+});
+
+// URL param: open specific driver
+const params = new URLSearchParams(location.search);
+if (params.get('id')) setTimeout(()=>openDetail(params.get('id')), 300);
+
+renderStats();
+renderDrivers(allDrivers);
+</script>
+</body>
+</html>
