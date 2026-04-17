@@ -459,8 +459,19 @@ document.getElementById('driverSearch').addEventListener('input', e => {
 const params = new URLSearchParams(location.search);
 if (params.get('id')) setTimeout(()=>openDetail(params.get('id')), 300);
 
-renderStats();
-renderDrivers(allDrivers);
+async function loadData() {
+  try {
+    const res = await fetch(`${API_BASE}/api/drivers`);
+    const data = await res.json();
+    allDrivers = data.drivers.length > 0 ? data.drivers : MOCK.drivers;
+  } catch(e) {
+    allDrivers = MOCK.drivers;
+  }
+  filtered = [...allDrivers];
+  renderStats();
+  renderDrivers(allDrivers);
+}
+loadData();
 </script>
 </body>
 </html>

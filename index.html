@@ -249,7 +249,9 @@ function severityColor(severity) {
 
 function loadRoadEvents() {
   // Use mock data; replace with api.get('/api/map/road-events') when backend live
-  const events = MOCK.roadEvents;
+  const response = await fetch(`${API_BASE}/api/map/road-events`);
+  const data = await response.json();
+  const events = data.events || MOCK.roadEvents;
   renderRoadEvents(events);
   updateStats(events);
 }
@@ -295,7 +297,9 @@ function renderRoadEvents(events) {
 }
 
 function loadDrivers() {
-  const drivers = MOCK.drivers.filter(d => d.speed_kmh > 0 || d.lat);
+  const response = await fetch(`${API_BASE}/api/map/live-drivers`);
+  const data = await response.json();
+  const drivers = data.drivers || MOCK.drivers;
   renderDrivers(drivers);
   document.getElementById('statDrivers').textContent = drivers.length;
 }

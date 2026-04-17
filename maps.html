@@ -169,12 +169,17 @@ let aMap, markerGroups = {};
 const ftState = { pothole: true, rough: true, bump: true, impassable: true };
 const colors = { critical:'#FF4757', high:'#FF8C00', medium:'#F5A623', low:'#0EE6B7', impassable:'#3B82F6' };
 
-function initMap() {
+async function initMap() {
   aMap = L.map('analyticsMap', { zoomControl: false }).setView([-1.286389, 36.817223], 12);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(aMap);
   L.control.zoom({ position:'bottomright' }).addTo(aMap);
 
-  const evts = MOCK.roadEvents;
+  let evts = MOCK.roadEvents;
+  try {
+    const res = await fetch(`${API_BASE}/api/map/road-events`);
+    const data = await res.json();
+    if (data.events && data.events.length > 0) evts = data.events;
+  } catch(e) {}
   const groups = { pothole: L.layerGroup(), rough: L.layerGroup(), bump: L.layerGroup(), impassable: L.layerGroup() };
 
   evts.forEach(e => {
