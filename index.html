@@ -247,7 +247,7 @@ function severityColor(severity) {
   return map[severity] || '#0EE6B7';
 }
 
-function loadRoadEvents() {
+async function loadRoadEvents() {
   // Use mock data; replace with api.get('/api/map/road-events') when backend live
   const response = await fetch(`${API_BASE}/api/map/road-events`);
   const data = await response.json();
@@ -296,7 +296,7 @@ function renderRoadEvents(events) {
   if (activeToggle.bumps) bumpGroup.addTo(map);
 }
 
-function loadDrivers() {
+async function loadDrivers() {
   const response = await fetch(`${API_BASE}/api/map/live-drivers`);
   const data = await response.json();
   const drivers = data.drivers || MOCK.drivers;
