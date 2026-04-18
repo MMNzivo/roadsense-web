@@ -2,236 +2,160 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RoadSense — Profile</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RoadSense — Profile & Account</title>
 <link rel="stylesheet" href="css/style.css">
 <style>
-  .auth-split {
-    display: grid; grid-template-columns: 1fr 1fr;
-    min-height: calc(100vh - var(--topbar-h));
+  .verify-badge {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:3px 10px; border-radius:99px; font-size:0.7rem; font-weight:700;
   }
-  .auth-left {
-    background: linear-gradient(160deg, var(--bg-panel) 0%, #0D1B2A 100%);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 48px; position: relative; overflow: hidden;
+  .verify-badge.verified { background:#E8F5E9; color:var(--success); }
+  .verify-badge.unverified { background:#FFEBEE; color:var(--danger); }
+  .fleet-table { width:100%; border-collapse:collapse; }
+  .fleet-table th { font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); padding:8px 12px; text-align:left; background:var(--off-white); }
+  .fleet-table td { padding:10px 12px; border-bottom:1px solid var(--light); font-size:0.88rem; }
+  .fleet-table tr:hover td { background:rgba(26,60,94,0.03); }
+  .score-pill {
+    display:inline-block; padding:2px 10px; border-radius:99px;
+    font-size:0.75rem; font-weight:700;
   }
-  .auth-left::before {
-    content: '';
-    position: absolute; top: -50%; left: -50%;
-    width: 200%; height: 200%;
-    background: radial-gradient(circle at 40% 60%, var(--accent-glow) 0%, transparent 50%);
-    pointer-events: none;
+  .section-divider {
+    display:flex; align-items:center; gap:12px; margin:28px 0 20px;
   }
-  .auth-left h1 {
-    font-family: var(--font-head); font-size: 2.8rem; font-weight: 700;
-    letter-spacing: 1px; line-height: 1.15; margin-bottom: 16px;
-    background: linear-gradient(135deg, var(--accent) 0%, #fff 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  .section-divider::before,.section-divider::after {
+    content:''; flex:1; height:1px; background:var(--border);
   }
-  .auth-left p { color: var(--text-secondary); font-size: 1rem; line-height: 1.7; max-width: 400px; }
-  .features-list { margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
-  .feature-item {
-    display: flex; align-items: center; gap: 12px;
-    font-size: 0.9rem; color: var(--text-secondary);
-  }
-  .feature-item .icon {
-    width: 32px; height: 32px; border-radius: var(--radius-sm);
-    background: var(--accent-dim); border: 1px solid var(--border);
-    display: grid; place-items: center; flex-shrink: 0;
-  }
-  .feature-item .icon svg { width: 16px; height: 16px; color: var(--accent); }
-  .auth-right {
-    display: flex; align-items: center; justify-content: center;
-    padding: 48px 40px;
-  }
-  .auth-box { width: 100%; max-width: 420px; }
-  .auth-logo {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 32px;
-  }
-  .auth-logo .mark {
-    width: 40px; height: 40px; background: var(--accent); border-radius: var(--radius-sm);
-    display: grid; place-items: center;
-  }
-  .auth-logo .mark svg { width: 22px; height: 22px; fill: var(--bg-root); }
-  .auth-logo .name { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; }
-  .auth-tabs { display: flex; margin-bottom: 28px; background: var(--bg-card); border-radius: var(--radius-sm); padding: 4px; }
-  .auth-tab {
-    flex: 1; text-align: center; padding: 9px;
-    font-family: var(--font-head); font-size: 0.9rem; font-weight: 600;
-    border-radius: calc(var(--radius-sm) - 2px); cursor: pointer;
-    color: var(--text-muted); transition: all var(--transition);
-  }
-  .auth-tab.active { background: var(--accent); color: var(--bg-root); }
-  .profile-card {
-    background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); padding: 28px;
-  }
-  .profile-avatar-wrap {
-    text-align: center; margin-bottom: 24px;
-  }
-  .profile-avatar-big {
-    width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 12px;
-    display: grid; place-items: center;
-    font-family: var(--font-head); font-weight: 700; font-size: 2rem;
-    color: var(--bg-root);
-  }
-  .badge-category {
-    display: inline-block; padding: 4px 12px; border-radius: 99px;
-    font-size: 0.72rem; font-weight: 600; letter-spacing: 1px;
-    text-transform: uppercase; background: var(--accent-dim); color: var(--accent);
-  }
-  .profile-stats {
-    display: grid; grid-template-columns: repeat(3,1fr);
-    gap: 8px; margin: 20px 0;
-  }
-  .profile-stat {
-    text-align: center; background: var(--bg-input);
-    border-radius: var(--radius-sm); padding: 12px 8px;
-  }
-  .profile-stat .val { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; }
-  .profile-stat .lbl { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; letter-spacing: 0.5px; }
-  @media(max-width:900px) {
-    .auth-split { grid-template-columns: 1fr; }
-    .auth-left { display: none; }
-    .auth-right { padding: 24px 20px; }
+  .section-divider span {
+    font-family:var(--font-head); font-size:0.85rem; font-weight:600;
+    color:var(--text-muted); white-space:nowrap; letter-spacing:0.5px;
   }
 </style>
 </head>
 <body>
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-logo">
-      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-    </div>
-    <span class="sidebar-brand">ROADSENSE</span>
-    <button class="sidebar-toggle" id="sidebarToggle">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
+  <div class="sidebar-logo-wrap">
+    <div class="sidebar-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+    <div class="sidebar-brand">RoadSense<small>Technologies</small></div>
   </div>
   <nav class="sidebar-nav">
-    <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Live Map</span></a>
-    <a href="maps.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Road Analytics</span></a>
-    <a href="driver-score.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Driver Scores</span></a>
-    <a href="profile.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></a>
-    <a href="about.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>About</span></a>
+    <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Live Map</a>
+    <a href="maps.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Road Analytics</a>
+    <a href="driver-score.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Driver Scores</a>
+    <a href="profile.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="about.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>About</a>
   </nav>
   <div class="sidebar-footer">
-    <div class="sidebar-user"><div class="user-avatar" id="navUserAvatar">G</div><div class="user-info"><div class="user-name" id="navUserName">Guest</div><div class="user-role" id="navUserRole">Not logged in</div></div></div>
+    <div class="sidebar-user"><div class="user-avatar" id="navUserAvatar">G</div><div><div class="user-name" id="navUserName">Guest</div><div class="user-role" id="navUserRole"></div></div></div>
   </div>
 </aside>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<div class="main-wrapper">
-  <header class="topbar">
+<div class="main-wrapper" style="margin-left:var(--sidebar-w)">
+  <header class="topbar" style="left:var(--sidebar-w)">
     <button class="hamburger" id="hamburger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    <span class="topbar-title">Account</span>
+    <span class="topbar-title">Account & Profile</span>
     <div class="topbar-actions" id="topbarActions"></div>
   </header>
 
-  <div class="auth-split" id="authView">
-    <!-- LEFT PANEL -->
-    <div class="auth-left">
-      <h1>Smarter Roads,<br>Safer Drivers.</h1>
-      <p>RoadSense uses embedded IoT sensors to monitor road conditions and driver behaviour in real time across Kenya's road network.</p>
-      <div class="features-list">
-        <div class="feature-item">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-          Live GPS tracking with road condition overlays
-        </div>
-        <div class="feature-item">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-          Real-time accelerometer-based pothole detection
-        </div>
-        <div class="feature-item">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-          Driver behaviour scoring for fleet management
-        </div>
-        <div class="feature-item">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-          Multi-user fleet and taxi management portal
-        </div>
+  <!-- AUTH VIEW -->
+  <div id="authView">
+    <div class="auth-layout">
+      <!-- LEFT HERO -->
+      <div class="auth-left reveal-left">
+        <h1>Drive Smart.<br><span>Stay Safe.</span></h1>
+        <p style="margin-bottom:28px">Join thousands of drivers and fleet managers across Kenya using RoadSense to monitor road conditions and track driver performance in real time.</p>
+        <div class="auth-feature"><div class="auth-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>Live GPS road condition mapping</div>
+        <div class="auth-feature"><div class="auth-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>Personalised driver behaviour score</div>
+        <div class="auth-feature"><div class="auth-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>Fleet management dashboard</div>
       </div>
-    </div>
 
-    <!-- RIGHT: Auth Forms -->
-    <div class="auth-right">
-      <div class="auth-box">
-        <div class="auth-logo">
-          <div class="mark"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
-          <span class="name">ROADSENSE</span>
-        </div>
+      <!-- RIGHT FORMS -->
+      <div class="auth-right">
+        <div class="auth-box reveal">
+          <div class="auth-logo-line">
+            <div class="auth-logo-mark"><svg viewBox="0 0 24 24"><path fill="#C8972B" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+            <span class="auth-logo-name">RoadSense</span>
+          </div>
 
-        <div class="auth-tabs">
-          <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Sign In</div>
-          <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Register</div>
-        </div>
+          <div class="auth-tabs-strip">
+            <button class="auth-tab-btn active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+            <button class="auth-tab-btn" id="tabReg" onclick="switchTab('register')">Register</button>
+          </div>
 
-        <!-- LOGIN FORM -->
-        <div id="loginForm">
-          <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input class="form-control" id="loginEmail" type="email" placeholder="you@example.com">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input class="form-control" id="loginPass" type="password" placeholder="••••••••">
-          </div>
-          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()">
-            Sign In to RoadSense
-          </button>
-          <div style="text-align:center;margin-top:16px;font-size:0.82rem;color:var(--text-muted)">
-            Don't have an account? <a href="#" onclick="switchAuthTab('register')">Register here</a>
-          </div>
-          <!-- Demo shortcut -->
-          <div style="margin-top:16px;padding:12px;background:var(--accent-dim);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.8rem;color:var(--text-secondary)">
-            <b style="color:var(--accent)">Demo:</b> Use any email/password to log in with mock data
-          </div>
-        </div>
-
-        <!-- REGISTER FORM -->
-        <div id="registerForm" style="display:none">
-          <div class="form-group">
-            <label class="form-label">Full Name</label>
-            <input class="form-control" id="regName" type="text" placeholder="James Mwangi">
-          </div>
-          <div class="form-group">
-            <label class="form-label">National ID / Passport</label>
-            <input class="form-control" id="regNationalId" type="text" placeholder="12345678">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Vehicle Number Plate</label>
-            <input class="form-control" id="regPlate" type="text" placeholder="KDA 123A" style="text-transform:uppercase">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Account Category</label>
-            <div class="category-grid">
-              <button class="category-btn selected" id="catFleet" onclick="selectCat('fleet')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                Fleet
-              </button>
-              <button class="category-btn" id="catPersonal" onclick="selectCat('personal')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Personal
-              </button>
-              <button class="category-btn" id="catTaxi" onclick="selectCat('taxi')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                Taxi
-              </button>
+          <!-- LOGIN -->
+          <div id="loginForm">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input class="form-control" id="loginEmail" type="email" placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input class="form-control" id="loginPass" type="password" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Sign In to RoadSense</button>
+            <div style="text-align:center;margin-top:14px;font-size:0.82rem;color:var(--text-muted)">
+              Don't have an account? <a href="#" onclick="switchTab('register')">Register here</a>
+            </div>
+            <div style="margin-top:14px;padding:12px;background:var(--off-white);border:1px solid var(--border);border-radius:var(--radius);font-size:0.78rem;color:var(--text-muted)">
+              <b style="color:var(--primary)">Demo Mode:</b> Sign in with any email and password to explore with sample data.
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input class="form-control" id="regEmail" type="email" placeholder="you@example.com">
+
+          <!-- REGISTER -->
+          <div id="registerForm" style="display:none">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input class="form-control" id="regName" placeholder="e.g. James Mwangi">
+            </div>
+            <div class="form-group">
+              <label class="form-label">National ID / Passport Number</label>
+              <input class="form-control" id="regNatId" placeholder="e.g. 12345678">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input class="form-control" id="regPhone" type="tel" placeholder="+254 7XX XXX XXX">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vehicle Number Plate</label>
+              <input class="form-control" id="regPlate" placeholder="e.g. KDA 123A" style="text-transform:uppercase">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vehicle Make & Model</label>
+              <input class="form-control" id="regCar" placeholder="e.g. Toyota Fielder 2019">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Account Category</label>
+              <div class="category-grid">
+                <button class="cat-btn active" id="catFleet" onclick="selectCat('fleet')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                  Fleet
+                </button>
+                <button class="cat-btn" id="catPersonal" onclick="selectCat('personal')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Personal
+                </button>
+                <button class="cat-btn" id="catTaxi" onclick="selectCat('taxi')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                  Taxi
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input class="form-control" id="regEmail" type="email" placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input class="form-control" id="regPass" type="password" placeholder="At least 8 characters">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password</label>
+              <input class="form-control" id="regPass2" type="password" placeholder="Repeat password">
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doRegister()">Create Account</button>
           </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input class="form-control" id="regPass" type="password" placeholder="At least 8 characters">
-          </div>
-          <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doRegister()">
-            Create Account
-          </button>
         </div>
       </div>
     </div>
@@ -239,81 +163,130 @@
 
   <!-- PROFILE VIEW (when logged in) -->
   <div class="main-content" id="profileView" style="display:none">
-    <div class="page-header">
-      <h1>My Profile</h1>
-      <p>Your account details and personal driving score</p>
+    <div class="page-header reveal" style="margin-bottom:24px">
+      <div class="page-title" id="profPageTitle">My Profile</div>
+      <div class="page-subtitle">Manage your account, vehicle, and fleet</div>
     </div>
 
-    <div style="display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start">
-      <!-- Profile Card -->
-      <div class="profile-card">
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar-big" id="profAvatar" style="background:linear-gradient(135deg,var(--accent),var(--info))">J</div>
-          <div style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;margin-bottom:4px" id="profName">James Mwangi</div>
-          <div class="badge-category" id="profCategory">Fleet</div>
+    <div class="profile-layout">
+      <!-- LEFT: Profile Card -->
+      <div class="reveal-left">
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <div class="profile-avatar-lg" id="profAvatar">J</div>
+            <div class="profile-name-lg" id="profName">James Mwangi</div>
+            <span class="profile-badge" id="profBadge">Personal</span>
+          </div>
+          <div class="profile-card-body">
+            <div class="profile-field">
+              <div class="profile-field-label">Account Status</div>
+              <div class="profile-field-value">
+                <span class="verify-badge verified">✓ Verified</span>
+              </div>
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">National ID</div>
+              <div class="profile-field-value" id="profNatId">—</div>
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">Phone Number</div>
+              <div class="profile-field-value" id="profPhone">—</div>
+            </div>
+            <div class="profile-field">
+              <div class="profile-field-label">Email Address</div>
+              <div class="profile-field-value" id="profEmail">—</div>
+            </div>
+            <div style="border-top:1px solid var(--border);margin:14px 0;padding-top:14px">
+              <div class="profile-field-label" style="margin-bottom:8px">Vehicle Details</div>
+              <div class="profile-field">
+                <div class="profile-field-label">Number Plate</div>
+                <div class="profile-field-value" style="font-family:var(--font-mono)" id="profPlate">—</div>
+              </div>
+              <div class="profile-field">
+                <div class="profile-field-label">Make & Model</div>
+                <div class="profile-field-value" id="profCar">—</div>
+              </div>
+              <div class="profile-field">
+                <div class="profile-field-label">Device ID</div>
+                <div class="profile-field-value" style="font-family:var(--font-mono)" id="profDevice">RS-001</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="Auth.logout()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign Out
+            </button>
+          </div>
         </div>
-        <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px">
-          <div class="form-group">
-            <label class="form-label">Number Plate</label>
-            <div class="form-control" style="font-family:var(--font-mono);letter-spacing:2px" id="profPlate">KDA 123A</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <div class="form-control" id="profEmail">james@example.com</div>
-          </div>
-          <div class="form-group" id="profDeviceWrap">
-            <label class="form-label">Device ID</label>
-            <div class="form-control" style="font-family:var(--font-mono)" id="profDevice">RS-001</div>
-          </div>
-        </div>
-        <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="App.logout()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sign Out
-        </button>
       </div>
 
-      <!-- Right: score + stats -->
+      <!-- RIGHT: Score + Fleet -->
       <div>
-        <!-- Personal Score -->
-        <div class="card" style="margin-bottom:20px">
-          <div class="card-header">
-            <div class="card-title">
+        <!-- My Driver Score -->
+        <div class="section-block reveal">
+          <div class="section-block-header">
+            <div class="section-block-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
               My Driving Score
             </div>
+            <span id="scoreLabelBadge" class="badge badge-info">Good</span>
           </div>
-          <div class="card-body">
-            <div class="score-hero">
-              <div class="score-big" id="profScoreRing" style="width:100px;height:100px;position:relative"></div>
-              <div class="deduction-list">
-                <div class="deduction-row"><span class="lbl">🚨 Harsh Brakes</span><span class="count" id="pHarshBrake" style="color:var(--danger)">0</span></div>
-                <div class="deduction-row"><span class="lbl">↩ Sharp Corners</span><span class="count" id="pCorners" style="color:var(--amber)">0</span></div>
-                <div class="deduction-row"><span class="lbl">💨 Speed Violations</span><span class="count" id="pSpeeding" style="color:var(--amber)">0</span></div>
-                <div class="deduction-row"><span class="lbl">🕳 Potholes Hit</span><span class="count" id="pPotholes">0</span></div>
+          <div class="section-block-body">
+            <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">
+              <div style="position:relative;width:110px;height:110px;flex-shrink:0" id="myScoreRing"></div>
+              <div style="flex:1">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <div class="live-chip"><div class="lbl">Harsh Brakes</div><div class="val" id="myBrakes" style="color:var(--danger)">0</div></div>
+                  <div class="live-chip"><div class="lbl">Sharp Corners</div><div class="val" id="myCorners" style="color:var(--warning)">0</div></div>
+                  <div class="live-chip"><div class="lbl">Speed Violations</div><div class="val" id="mySpeeding" style="color:var(--warning)">0</div></div>
+                  <div class="live-chip"><div class="lbl">Potholes Hit</div><div class="val" id="myPotholes" style="color:var(--primary)">0</div></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Live Sensor Data -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              Live Sensor Feed
+        <!-- Change Password -->
+        <div class="section-block reveal">
+          <div class="section-block-header">
+            <div class="section-block-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Password & Security
             </div>
-            <span style="font-size:0.75rem;color:var(--accent);display:flex;align-items:center;gap:5px">
-              <span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 1.8s infinite"></span>LIVE
-            </span>
           </div>
-          <div class="card-body">
-            <div class="live-grid">
-              <div class="live-chip"><div class="lbl">Speed</div><div class="val" id="pLivSpeed">34<span class="unit">km/h</span></div></div>
-              <div class="live-chip"><div class="lbl">Accel X</div><div class="val" id="pLivAx">0.08<span class="unit">g</span></div></div>
-              <div class="live-chip"><div class="lbl">Accel Y</div><div class="val" id="pLivAy">0.02<span class="unit">g</span></div></div>
-              <div class="live-chip"><div class="lbl">Accel Z</div><div class="val" id="pLivAz">0.99<span class="unit">g</span></div></div>
-              <div class="live-chip"><div class="lbl">Latitude</div><div class="val" id="pLivLat" style="font-size:0.85rem">-1.2864<span class="unit">°</span></div></div>
-              <div class="live-chip"><div class="lbl">Longitude</div><div class="val" id="pLivLng" style="font-size:0.85rem">36.817<span class="unit">°</span></div></div>
+          <div class="section-block-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group" style="margin:0">
+                <label class="form-label">Current Password</label>
+                <input class="form-control" type="password" id="curPass" placeholder="••••••••">
+              </div>
+              <div class="form-group" style="margin:0">
+                <label class="form-label">New Password</label>
+                <input class="form-control" type="password" id="newPass" placeholder="••••••••">
+              </div>
+            </div>
+            <button class="btn btn-outline btn-sm" style="margin-top:14px" onclick="Toast.success('Password updated successfully')">Update Password</button>
+          </div>
+        </div>
+
+        <!-- Fleet Management — only for fleet/taxi owners -->
+        <div class="section-block reveal" id="fleetSection" style="display:none">
+          <div class="section-block-header">
+            <div class="section-block-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              Fleet Management
+            </div>
+            <button class="btn btn-gold btn-sm" onclick="showAddDriverModal()">+ Add Driver</button>
+          </div>
+          <div class="section-block-body">
+            <div style="overflow-x:auto">
+              <table class="fleet-table">
+                <thead>
+                  <tr>
+                    <th>Driver</th><th>Plate</th><th>Score</th><th>Status</th><th>Last Seen</th><th></th>
+                  </tr>
+                </thead>
+                <tbody id="fleetTableBody"></tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -322,96 +295,154 @@
   </div>
 </div>
 
+<!-- Add Driver Modal -->
+<div class="modal-overlay" id="addDriverModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title">Add Driver to Fleet</div>
+      <button class="modal-close" onclick="document.getElementById('addDriverModal').classList.remove('open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-group"><label class="form-label">Driver Full Name</label><input class="form-control" id="addDrvName" placeholder="e.g. Peter Kamau"></div>
+    <div class="form-group"><label class="form-label">Number Plate</label><input class="form-control" id="addDrvPlate" placeholder="e.g. KCC 789C"></div>
+    <div class="form-group"><label class="form-label">Phone Number</label><input class="form-control" id="addDrvPhone" placeholder="+254 7XX XXX XXX"></div>
+    <div class="form-group"><label class="form-label">Driver ID</label><input class="form-control" id="addDrvId" placeholder="e.g. DRV-002"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="addFleetDriver()">Add to Fleet</button>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
 <script>
-let selectedCategory = 'fleet';
+let selectedCat = 'fleet';
 
-function switchAuthTab(tab) {
-  document.getElementById('loginForm').style.display    = tab==='login'    ? '' : 'none';
-  document.getElementById('registerForm').style.display = tab==='register' ? '' : 'none';
-  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
-  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+function switchTab(t) {
+  document.getElementById('loginForm').style.display    = t==='login'    ? '' : 'none';
+  document.getElementById('registerForm').style.display = t==='register' ? '' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active', t==='login');
+  document.getElementById('tabReg').classList.toggle('active', t==='register');
 }
 
-function selectCat(cat) {
-  selectedCategory = cat;
-  ['fleet','personal','taxi'].forEach(c => {
-    document.getElementById(`cat${c.charAt(0).toUpperCase()+c.slice(1)}`).classList.toggle('selected', c===cat);
+function selectCat(c) {
+  selectedCat = c;
+  ['fleet','personal','taxi'].forEach(x => {
+    document.getElementById(`cat${x.charAt(0).toUpperCase()+x.slice(1)}`).classList.toggle('active', x===c);
   });
 }
 
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const pass  = document.getElementById('loginPass').value;
-  if (!email || !pass) { Toast.warn('Please fill in all fields'); return; }
-
-  // Demo mode: auto-login with first mock driver
+  if (!email||!pass) { Toast.warn('Please enter email and password'); return; }
+  // Demo mode — use first mock driver
   const mockUser = {
     id: MOCK.drivers[0].id,
     name: MOCK.drivers[0].name,
-    category: MOCK.drivers[0].category,
+    email, category: 'personal',
     plate: MOCK.drivers[0].plate,
-    email
+    phone: '+254 712 345 678',
+    car: 'Toyota Fielder 2018',
+    nat_id: '12345678'
   };
-  App.saveUser(mockUser, 'demo-token');
-  Toast.success('Welcome back, ' + mockUser.name);
+  Auth.save(mockUser, 'demo-' + Date.now());
+  Toast.success('Welcome back, ' + mockUser.name + '!');
   setTimeout(() => showProfile(mockUser), 400);
 }
 
 async function doRegister() {
   const name  = document.getElementById('regName').value.trim();
+  const natId = document.getElementById('regNatId').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
   const plate = document.getElementById('regPlate').value.trim();
+  const car   = document.getElementById('regCar').value.trim();
   const email = document.getElementById('regEmail').value.trim();
   const pass  = document.getElementById('regPass').value;
-  if (!name || !plate || !email || !pass) { Toast.warn('Please fill all fields'); return; }
+  const pass2 = document.getElementById('regPass2').value;
+  if (!name||!natId||!phone||!plate||!email||!pass) { Toast.warn('Please fill all required fields'); return; }
+  if (pass !== pass2) { Toast.error('Passwords do not match'); return; }
+  if (pass.length < 8) { Toast.error('Password must be at least 8 characters'); return; }
 
-  const newUser = { id: 'USR'+Date.now(), name, plate, email, category: selectedCategory };
-  App.saveUser(newUser, 'demo-token');
-  Toast.success('Account created! Welcome, ' + name);
+  const newUser = {
+    id: 'USR'+Date.now(), name, email, category: selectedCat,
+    plate, car, phone, nat_id: natId
+  };
+  Auth.save(newUser, 'token-'+Date.now());
+  Toast.success('Account created! Welcome to RoadSense, ' + name);
   setTimeout(() => showProfile(newUser), 400);
 }
 
 function showProfile(user) {
-  document.getElementById('authView').style.display    = 'none';
-  document.getElementById('profileView').style.display = '';
-  document.getElementById('topbarActions').innerHTML   =
-    `<button class="btn btn-ghost btn-sm" onclick="App.logout()">Sign Out</button>`;
+  document.getElementById('authView').style.display   = 'none';
+  document.getElementById('profileView').style.display= '';
+  document.getElementById('topbarActions').innerHTML  =
+    `<button class="btn btn-ghost btn-sm" onclick="Auth.logout()">Sign Out</button>`;
 
-  const driver = MOCK.drivers.find(d=>d.id===user.id) || MOCK.drivers[0];
-  const color  = ScoreUtils.color(driver.score);
-
-  document.getElementById('profName').textContent     = user.name;
-  document.getElementById('profCategory').textContent = user.category;
-  document.getElementById('profPlate').textContent    = user.plate || driver.plate;
-  document.getElementById('profEmail').textContent    = user.email;
-  document.getElementById('profAvatar').textContent   = user.name[0];
-  document.getElementById('profAvatar').style.background = `linear-gradient(135deg,${color},${color}88)`;
-  document.getElementById('profDevice').textContent   = 'RS-001';
+  document.getElementById('profAvatar').textContent = (user.name||'U')[0].toUpperCase();
+  document.getElementById('profName').textContent   = user.name||'—';
+  document.getElementById('profBadge').textContent  = (user.category||'personal').toUpperCase();
+  document.getElementById('profEmail').textContent  = user.email||'—';
+  document.getElementById('profPlate').textContent  = user.plate||'—';
+  document.getElementById('profCar').textContent    = user.car||'—';
+  document.getElementById('profPhone').textContent  = user.phone||'—';
+  document.getElementById('profNatId').textContent  = user.nat_id||'—';
 
   // Score ring
-  const circ = 2*Math.PI*45;
-  const dash = (driver.score/100)*circ;
-  document.getElementById('profScoreRing').innerHTML = `
-    <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg)">
-      <circle cx="50" cy="50" r="45" fill="none" stroke="#162032" stroke-width="6"/>
-      <circle cx="50" cy="50" r="45" fill="none" stroke="${color}" stroke-width="6"
-        stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ-dash}"/>
-    </svg>
-    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      font-family:'Rajdhani',sans-serif;font-weight:700">
-      <span style="font-size:1.5rem;color:${color}">${Math.round(driver.score)}</span>
-      <span style="font-size:0.7rem;color:var(--text-muted)">${ScoreUtils.label(driver.score)}</span>
-    </div>`;
+  const drv = MOCK.drivers.find(d=>d.id===user.id)||MOCK.drivers[0];
+  document.getElementById('myScoreRing').innerHTML = Score.ring(drv.score, 110);
+  const lbl = Score.label(drv.score);
+  const lblBadge = document.getElementById('scoreLabelBadge');
+  lblBadge.textContent = lbl;
+  lblBadge.className = `badge ${drv.score>=75?'badge-low':drv.score>=50?'badge-medium':'badge-critical'}`;
 
-  document.getElementById('pHarshBrake').textContent = driver.harsh_brakes;
-  document.getElementById('pCorners').textContent    = driver.sharp_corners;
-  document.getElementById('pSpeeding').textContent   = driver.speed_violations;
-  document.getElementById('pPotholes').textContent   = driver.potholes_hit;
+  document.getElementById('myBrakes').textContent  = drv.harsh_brakes;
+  document.getElementById('myCorners').textContent = drv.sharp_corners;
+  document.getElementById('mySpeeding').textContent= drv.speed_violations;
+  document.getElementById('myPotholes').textContent= drv.potholes_hit;
+
+  // Fleet section — only for fleet/taxi owners
+  if (Auth.canSeeFleet()) {
+    document.getElementById('fleetSection').style.display = '';
+    loadFleetTable();
+  }
+
+  ScrollReveal.init();
 }
 
-// Check if already logged in
+function loadFleetTable() {
+  const tbody = document.getElementById('fleetTableBody');
+  const drivers = MOCK.drivers.filter(d=>d.category==='fleet'||d.category==='taxi');
+  tbody.innerHTML = drivers.map(d => {
+    const sc = d.score;
+    const color = Score.color(sc);
+    const online = d.speed_kmh > 0;
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div class="fleet-driver-avatar">${d.name[0]}</div>
+        <span style="font-weight:600">${d.name}</span>
+      </div></td>
+      <td style="font-family:var(--font-mono);font-size:0.8rem">${d.plate}</td>
+      <td><span style="font-weight:700;color:${color}">${sc}</span></td>
+      <td>${online?'<span class="badge badge-low">Online</span>':'<span class="badge">Offline</span>'}</td>
+      <td style="font-size:0.8rem;color:var(--text-muted)">Just now</td>
+      <td><a href="driver-score.html?id=${d.id}" class="btn btn-ghost btn-sm" style="padding:4px 10px;font-size:0.75rem">View</a></td>
+    </tr>`;
+  }).join('');
+}
+
+function showAddDriverModal() {
+  document.getElementById('addDriverModal').classList.add('open');
+}
+
+function addFleetDriver() {
+  const name  = document.getElementById('addDrvName').value.trim();
+  const plate = document.getElementById('addDrvPlate').value.trim();
+  if (!name||!plate) { Toast.warn('Name and plate are required'); return; }
+  document.getElementById('addDriverModal').classList.remove('open');
+  Toast.success(`${name} added to your fleet`);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  if (App.isLoggedIn()) showProfile(App.user);
+  if (Auth.loggedIn()) showProfile(Auth.user);
 });
 </script>
 </body>

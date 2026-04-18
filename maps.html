@@ -1,161 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>RoadSense — Road Analytics</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
   .analytics-layout {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 20px; height: calc(100vh - var(--topbar-h) - 56px);
+    display:grid;
+    grid-template-columns:1fr 360px;
+    gap:20px;
+    height:calc(100vh - var(--topbar-h) - 64px);
   }
-  .map-panel { position: relative; }
-  .analytics-map { height: 100%; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
-  #analyticsMap { height: 100%; }
-  .sidebar-panel { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
-  .filter-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
-  .filter-section h3 { font-family: var(--font-head); font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+  .analytics-map { position:relative; }
+  #analyticsMap { height:100%; border-radius:var(--radius); }
+  .side-panel {
+    display:flex; flex-direction:column; gap:16px;
+    overflow-y:auto; padding-bottom:16px;
+  }
+  .filter-card {
+    background:var(--white); border:1px solid var(--border);
+    border-radius:var(--radius); padding:16px;
+    box-shadow:var(--shadow-card);
+  }
+  .filter-card h3 {
+    font-size:0.7rem; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--text-muted); font-weight:700; margin-bottom:12px;
+  }
   .filter-toggle {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 9px 12px; margin: 4px 0;
-    background: var(--bg-input); border: 1px solid var(--border);
-    border-radius: var(--radius-sm); cursor: pointer;
-    font-size: 0.85rem; transition: all var(--transition);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:9px 12px; margin:4px 0;
+    background:var(--off-white); border:1.5px solid var(--border);
+    border-radius:var(--radius); cursor:pointer;
+    font-size:0.85rem; font-weight:600; color:var(--text-sec);
+    transition:all var(--trans);
   }
-  .filter-toggle.on { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+  .filter-toggle.on {
+    border-color:var(--primary); color:var(--primary);
+    background:rgba(26,60,94,0.05);
+  }
   .toggle-pill {
-    width: 34px; height: 18px; border-radius: 99px;
-    background: var(--bg-card-2); border: 1px solid var(--border);
-    position: relative; transition: background var(--transition);
+    width:34px; height:18px; border-radius:99px;
+    background:var(--border); position:relative;
+    transition:background var(--trans); flex-shrink:0;
   }
   .toggle-pill::after {
-    content: ''; position: absolute; top: 2px; left: 2px;
-    width: 12px; height: 12px; border-radius: 50%;
-    background: var(--text-muted); transition: all var(--transition);
+    content:''; position:absolute; top:2px; left:2px;
+    width:14px; height:14px; border-radius:50%;
+    background:var(--white); transition:left var(--trans);
+    box-shadow:0 1px 4px rgba(0,0,0,0.2);
   }
-  .filter-toggle.on .toggle-pill { background: var(--accent); border-color: var(--accent); }
-  .filter-toggle.on .toggle-pill::after { background: var(--bg-root); left: 18px; }
-  .events-list { max-height: 280px; overflow-y: auto; }
+  .filter-toggle.on .toggle-pill { background:var(--primary); }
+  .filter-toggle.on .toggle-pill::after { left:18px; }
   .event-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-    cursor: pointer; transition: background var(--transition);
+    display:flex; align-items:flex-start; gap:10px;
+    padding:9px 0; border-bottom:1px solid var(--light);
+    cursor:pointer; transition:background var(--trans);
+    font-size:0.83rem;
   }
-  .event-item:hover { background: var(--accent-dim); margin: 0 -12px; padding: 10px 12px; border-radius: var(--radius-sm); }
-  .event-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
-  .event-info { flex: 1; }
-  .event-info .type { font-size: 0.85rem; font-weight: 600; }
-  .event-info .meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+  .event-item:hover { background:rgba(26,60,94,0.03); margin:0 -12px; padding:9px 12px; border-radius:var(--radius); }
+  .event-line {
+    width:4px; height:32px; border-radius:99px; flex-shrink:0; margin-top:2px;
+  }
+  .quality-bar-wrap { margin-bottom:12px; }
+  .quality-bar-label {
+    display:flex; justify-content:space-between;
+    font-size:0.78rem; color:var(--text-sec); margin-bottom:5px; font-weight:600;
+  }
+  .quality-bar-bg {
+    background:var(--light); border-radius:99px; height:8px; overflow:hidden;
+  }
+  .quality-bar-fill { height:100%; border-radius:99px; transition:width 0.6s ease; }
   @media(max-width:1100px) {
-    .analytics-layout { grid-template-columns: 1fr; height: auto; }
-    .analytics-map { height: 50vh; }
+    .analytics-layout { grid-template-columns:1fr; height:auto; }
+    .analytics-map { height:55vh; }
   }
 </style>
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-logo"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
-    <span class="sidebar-brand">ROADSENSE</span>
-    <button class="sidebar-toggle" id="sidebarToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <div class="sidebar-logo-wrap">
+    <div class="sidebar-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+    <div class="sidebar-brand">RoadSense<small>Technologies</small></div>
   </div>
   <nav class="sidebar-nav">
-    <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Live Map</span></a>
-    <a href="maps.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Road Analytics</span></a>
-    <a href="driver-score.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Driver Scores</span></a>
-    <a href="profile.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></a>
-    <a href="about.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>About</span></a>
+    <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Live Map</a>
+    <a href="maps.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Road Analytics</a>
+    <a href="driver-score.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Driver Scores</a>
+    <a href="profile.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="about.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>About</a>
   </nav>
   <div class="sidebar-footer">
-    <div class="sidebar-user"><div class="user-avatar" id="navUserAvatar">G</div><div class="user-info"><div class="user-name" id="navUserName">Guest</div><div class="user-role" id="navUserRole">Not logged in</div></div></div>
+    <div class="sidebar-user"><div class="user-avatar" id="navUserAvatar">G</div><div><div class="user-name" id="navUserName">Guest</div><div class="user-role" id="navUserRole"></div></div></div>
   </div>
 </aside>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<div class="main-wrapper">
-  <header class="topbar">
+<div class="main-wrapper" style="margin-left:var(--sidebar-w)">
+  <header class="topbar" style="left:var(--sidebar-w)">
     <button class="hamburger" id="hamburger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
     <span class="topbar-title">Road Analytics</span>
     <div class="topbar-actions">
-      <div class="search-wrap" style="max-width:280px">
+      <a href="profile.html" class="topbar-profile-btn" id="topbarProfileBtn" style="display:none">U</a>
+      <div class="search-wrap" style="max-width:260px">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="search-input" id="areaSearch" placeholder="Search area...">
+        <input class="search-input" id="areaSearch" placeholder="Search area or road...">
       </div>
     </div>
   </header>
 
   <div class="main-content">
-    <div class="page-header">
-      <div class="breadcrumb"><span>Dashboard</span> / Road Analytics</div>
-      <h1>Road Condition Analytics</h1>
-      <p>Colour-coded road severity map — crowdsourced from IoT sensors across Kenya</p>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div class="page-title reveal-left">Road Condition Analytics</div>
+        <div class="page-subtitle reveal-left">Colour-coded severity map — crowdsourced from sensors across Kenya</div>
+      </div>
+      <div style="display:flex;gap:8px" class="reveal-right">
+        <select class="form-control" id="timeFilter" style="width:auto;padding:8px 12px;font-size:0.85rem" onchange="loadEvents()">
+          <option value="24">Last 24 hours</option>
+          <option value="168">Last 7 days</option>
+          <option value="720">Last 30 days</option>
+        </select>
+      </div>
     </div>
 
     <div class="analytics-layout">
       <!-- MAP -->
-      <div class="map-panel">
-        <div class="analytics-map">
+      <div class="analytics-map reveal">
+        <div style="height:100%;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;position:relative;box-shadow:var(--shadow-card)">
           <div id="analyticsMap"></div>
-        </div>
-        <div class="map-overlay-legend">
-          <div style="font-family:var(--font-head);font-size:0.75rem;font-weight:600;margin-bottom:8px;letter-spacing:1px">SEVERITY</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#FF4757"></div>Critical</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#FF8C00"></div>Severe</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#F5A623"></div>Moderate</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#0EE6B7"></div>Minor</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#3B82F6"></div>Obstacle</div>
+          <div class="map-legend">
+            <div style="font-family:var(--font-head);font-size:0.75rem;font-weight:700;color:var(--primary);margin-bottom:8px">SEVERITY</div>
+            <div class="legend-item"><svg width="28" height="6"><line x1="0" y1="3" x2="28" y2="3" stroke="#C0392B" stroke-width="4" stroke-linecap="round"/></svg>Critical</div>
+            <div class="legend-item"><svg width="28" height="6"><line x1="0" y1="3" x2="28" y2="3" stroke="#BF360C" stroke-width="4" stroke-linecap="round"/></svg>Severe</div>
+            <div class="legend-item"><svg width="28" height="6"><line x1="0" y1="3" x2="28" y2="3" stroke="#B7660A" stroke-width="4" stroke-linecap="round"/></svg>Moderate</div>
+            <div class="legend-item"><svg width="28" height="6"><line x1="0" y1="3" x2="28" y2="3" stroke="#1B6B3A" stroke-width="4" stroke-linecap="round"/></svg>Minor</div>
+          </div>
         </div>
       </div>
 
       <!-- SIDE PANEL -->
-      <div class="sidebar-panel">
-        <!-- Filters -->
-        <div class="filter-section">
+      <div class="side-panel">
+        <!-- Layer Filters -->
+        <div class="filter-card reveal">
           <h3>Map Layers</h3>
-          <div class="filter-toggle on" id="ftPothole" onclick="toggleFilter('pothole')">
+          <div class="filter-toggle on" id="ftPothole" onclick="toggleF('pothole')">
             <span>🕳 Potholes</span><div class="toggle-pill"></div>
           </div>
-          <div class="filter-toggle on" id="ftRough" onclick="toggleFilter('rough')">
+          <div class="filter-toggle on" id="ftRough" onclick="toggleF('rough')">
             <span>⚠ Rough Roads</span><div class="toggle-pill"></div>
           </div>
-          <div class="filter-toggle on" id="ftBump" onclick="toggleFilter('bump')">
+          <div class="filter-toggle on" id="ftBump" onclick="toggleF('bump')">
             <span>🛑 Speed Bumps</span><div class="toggle-pill"></div>
           </div>
-          <div class="filter-toggle on" id="ftImpassable" onclick="toggleFilter('impassable')">
+          <div class="filter-toggle on" id="ftImpassable" onclick="toggleF('impassable')">
             <span>🚧 Impassable</span><div class="toggle-pill"></div>
           </div>
         </div>
 
-        <!-- Road Quality Stats -->
-        <div class="filter-section">
+        <!-- Road Quality Summary -->
+        <div class="filter-card reveal">
           <h3>Road Quality Summary</h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div style="text-align:center;background:var(--bg-input);border-radius:var(--radius-sm);padding:12px">
-              <div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--danger)" id="rqPotholes">—</div>
-              <div style="font-size:0.68rem;color:var(--text-muted)">Potholes</div>
-            </div>
-            <div style="text-align:center;background:var(--bg-input);border-radius:var(--radius-sm);padding:12px">
-              <div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--amber)" id="rqRough">—</div>
-              <div style="font-size:0.68rem;color:var(--text-muted)">Rough Sections</div>
-            </div>
-            <div style="text-align:center;background:var(--bg-input);border-radius:var(--radius-sm);padding:12px">
-              <div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--info)" id="rqBumps">—</div>
-              <div style="font-size:0.68rem;color:var(--text-muted)">Speed Bumps</div>
-            </div>
-            <div style="text-align:center;background:var(--bg-input);border-radius:var(--radius-sm);padding:12px">
-              <div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--danger)" id="rqImpassable">—</div>
-              <div style="font-size:0.68rem;color:var(--text-muted)">Impassable</div>
+          <div class="quality-bar-wrap">
+            <div class="quality-bar-label"><span>Critical Potholes</span><span id="qPotholes">0</span></div>
+            <div class="quality-bar-bg"><div class="quality-bar-fill" id="qPotholesBar" style="width:0%;background:var(--danger)"></div></div>
+          </div>
+          <div class="quality-bar-wrap">
+            <div class="quality-bar-label"><span>Rough Sections</span><span id="qRough">0</span></div>
+            <div class="quality-bar-bg"><div class="quality-bar-fill" id="qRoughBar" style="width:0%;background:var(--warning)"></div></div>
+          </div>
+          <div class="quality-bar-wrap">
+            <div class="quality-bar-label"><span>Speed Bumps</span><span id="qBumps">0</span></div>
+            <div class="quality-bar-bg"><div class="quality-bar-fill" id="qBumpsBar" style="width:0%;background:var(--info)"></div></div>
+          </div>
+          <div class="quality-bar-wrap">
+            <div class="quality-bar-label"><span>Impassable Areas</span><span id="qImpass">0</span></div>
+            <div class="quality-bar-bg"><div class="quality-bar-fill" id="qImpassBar" style="width:0%;background:var(--danger)"></div></div>
+          </div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem">
+              <span style="color:var(--text-sec)">Total Events</span>
+              <b id="qTotal" style="color:var(--primary)">0</b>
             </div>
           </div>
         </div>
 
-        <!-- Recent Events -->
-        <div class="filter-section" style="flex:1">
+        <!-- Recent Events Feed -->
+        <div class="filter-card reveal" style="flex:1">
           <h3>Recent Events</h3>
-          <div class="events-list" id="recentEvents"></div>
+          <div id="eventsFeed" style="max-height:320px;overflow-y:auto"></div>
         </div>
       </div>
     </div>
@@ -165,68 +198,143 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/app.js"></script>
 <script>
-let aMap, markerGroups = {};
-const ftState = { pothole: true, rough: true, bump: true, impassable: true };
-const colors = { critical:'#FF4757', high:'#FF8C00', medium:'#F5A623', low:'#0EE6B7', impassable:'#3B82F6' };
+let aMap;
+const mGroups  = {};
+const ftActive = { pothole:true, rough:true, bump:true, impassable:true };
+const sevColor = s => ({critical:'#C0392B',high:'#BF360C',medium:'#B7660A',low:'#1B6B3A'}[s]||'#1A3C5E');
 
-async function initMap() {
-  aMap = L.map('analyticsMap', { zoomControl: false }).setView([-1.286389, 36.817223], 12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(aMap);
+function initMap() {
+  aMap = L.map('analyticsMap', { zoomControl:false }).setView([-1.286389, 36.817223], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'© OpenStreetMap contributors', maxZoom:19
+  }).addTo(aMap);
   L.control.zoom({ position:'bottomright' }).addTo(aMap);
+  loadEvents();
+}
 
-  let evts = MOCK.roadEvents;
+async function loadEvents() {
+  let events = MOCK.roadEvents;
   try {
-    const res = await fetch(`${API_BASE}/api/map/road-events`);
-    const data = await res.json();
-    if (data.events && data.events.length > 0) evts = data.events;
-  } catch(e) {}
-  const groups = { pothole: L.layerGroup(), rough: L.layerGroup(), bump: L.layerGroup(), impassable: L.layerGroup() };
+    const d = await api.get('/api/map/road-events');
+    if (d.events?.length) events = d.events;
+  } catch(e){}
 
-  evts.forEach(e => {
-    const c = e.type==='impassable' ? '#3B82F6' : colors[e.severity] || '#0EE6B7';
-    const r = e.severity==='critical'?16:e.severity==='high'?12:9;
-    const m = L.circleMarker([e.lat, e.lng], { radius:r, fillColor:c, color:c, fillOpacity:0.75, weight:1.5 });
-    m.bindPopup(`<div class="popup-event"><div class="popup-type">${Fmt.eventType(e.type)}</div>
-      <div class="popup-row">Severity: <b style="color:${c}">${e.severity}</b></div>
-      <div class="popup-row">${Fmt.date(e.timestamp)}</div></div>`);
-    m.on('click', () => flyTo(e.lat, e.lng));
-    const key = e.type==='pothole'?'pothole':e.type==='rough_road'?'rough':e.type==='speed_bump'?'bump':'impassable';
-    if (groups[key]) groups[key].addLayer(m);
+  // Clear old groups
+  Object.values(mGroups).forEach(g => { if(g) aMap.removeLayer(g); });
+  const groups = {
+    pothole:    L.layerGroup(),
+    rough:      L.layerGroup(),
+    bump:       L.layerGroup(),
+    impassable: L.layerGroup(),
+  };
+
+  // Build polylines connecting nearby events (road lane style)
+  const sorted = [...events].sort((a,b) => a.lat - b.lat);
+  for (let i=0; i<sorted.length-1; i++) {
+    const a=sorted[i], b=sorted[i+1];
+    if (!a.lat||!b.lat) continue;
+    const dist = aMap.distance([a.lat,a.lng],[b.lat,b.lng]);
+    if (dist < 250) {
+      const col = sevColor(a.severity);
+      const w   = a.severity==='critical'?7:a.severity==='high'?5:4;
+      const line = L.polyline([[a.lat,a.lng],[b.lat,b.lng]], {
+        color:col, weight:w, opacity:0.8, lineCap:'round'
+      });
+      line.bindPopup(buildPopup(a));
+      const key = getKey(a.type);
+      groups[key]?.addLayer(line);
+    }
+  }
+
+  // Individual event markers
+  events.forEach(e => {
+    if (!e.lat||!e.lng) return;
+    const col = sevColor(e.severity);
+    const r   = e.severity==='critical'?10:e.severity==='high'?8:6;
+    const c   = L.circleMarker([e.lat,e.lng], {
+      radius:r, fillColor:col, color:col, fillOpacity:0.85, weight:1.5
+    });
+    c.bindPopup(buildPopup(e));
+    c.on('click', () => aMap.flyTo([e.lat,e.lng], 16, {duration:1.0}));
+    groups[getKey(e.type)]?.addLayer(c);
   });
 
-  Object.keys(groups).forEach(k => { markerGroups[k]=groups[k]; groups[k].addTo(aMap); });
-  updateStats(evts);
-  renderRecentEvents(evts);
+  // Add to map and save references
+  Object.entries(groups).forEach(([k,g]) => {
+    mGroups[k] = g;
+    if (ftActive[k]) g.addTo(aMap);
+  });
+
+  updateStats(events);
+  renderFeed(events);
 }
 
-function toggleFilter(key) {
-  ftState[key] = !ftState[key];
-  document.getElementById(`ft${key.charAt(0).toUpperCase()+key.slice(1)}`).classList.toggle('on', ftState[key]);
-  if (ftState[key]) markerGroups[key]?.addTo(aMap);
-  else if (markerGroups[key]) aMap.removeLayer(markerGroups[key]);
+function getKey(type) {
+  if (['pothole','minor_bump'].includes(type)) return 'pothole';
+  if (type === 'rough_road')  return 'rough';
+  if (type === 'speed_bump')  return 'bump';
+  if (type === 'impassable')  return 'impassable';
+  return 'pothole';
 }
 
-function flyTo(lat, lng) { aMap.flyTo([lat, lng], 16, { duration: 1.2 }); }
-
-function updateStats(evts) {
-  document.getElementById('rqPotholes').textContent   = evts.filter(e=>e.type==='pothole').length;
-  document.getElementById('rqRough').textContent      = evts.filter(e=>e.type==='rough_road').length;
-  document.getElementById('rqBumps').textContent      = evts.filter(e=>e.type==='speed_bump').length;
-  document.getElementById('rqImpassable').textContent = evts.filter(e=>e.type==='impassable').length;
+function buildPopup(e) {
+  const col = sevColor(e.severity);
+  return `<div class="popup-title">${Fmt.eventType(e.type)}</div>
+    <div class="popup-row">Severity: <b style="color:${col}">${(e.severity||'').toUpperCase()}</b></div>
+    ${e.magnitude?`<div class="popup-row">Magnitude: <b>${Number(e.magnitude).toFixed(2)}g</b></div>`:''}
+    <div class="popup-row">Location: <b>${Fmt.coords(e.lat,e.lng)}</b></div>
+    ${e.timestamp?`<div class="popup-row" style="color:var(--text-muted);font-size:0.75rem">${Fmt.date(e.timestamp)}</div>`:''}`;
 }
 
-function renderRecentEvents(evts) {
-  const feed = document.getElementById('recentEvents');
-  feed.innerHTML = evts.slice(0,8).map(e => {
-    const c = e.type==='impassable' ? '#3B82F6' : colors[e.severity]||'#0EE6B7';
+function toggleF(key) {
+  ftActive[key] = !ftActive[key];
+  document.getElementById(`ft${key.charAt(0).toUpperCase()+key.slice(1)}`).classList.toggle('on', ftActive[key]);
+  if (ftActive[key]) mGroups[key]?.addTo(aMap);
+  else if (mGroups[key]) aMap.removeLayer(mGroups[key]);
+}
+
+function updateStats(events) {
+  const p  = events.filter(e=>['pothole','minor_bump'].includes(e.type)).length;
+  const r  = events.filter(e=>e.type==='rough_road').length;
+  const b  = events.filter(e=>e.type==='speed_bump').length;
+  const im = events.filter(e=>e.type==='impassable').length;
+  const total = events.length || 1;
+
+  document.getElementById('qPotholes').textContent    = p;
+  document.getElementById('qRough').textContent       = r;
+  document.getElementById('qBumps').textContent       = b;
+  document.getElementById('qImpass').textContent      = im;
+  document.getElementById('qTotal').textContent       = events.length;
+  document.getElementById('qPotholesBar').style.width = `${Math.min(100,p/total*100)}%`;
+  document.getElementById('qRoughBar').style.width    = `${Math.min(100,r/total*100)}%`;
+  document.getElementById('qBumpsBar').style.width    = `${Math.min(100,b/total*100)}%`;
+  document.getElementById('qImpassBar').style.width   = `${Math.min(100,im/total*100)}%`;
+}
+
+function renderFeed(events) {
+  const feed = document.getElementById('eventsFeed');
+  const recent = [...events].slice(0,10);
+  if (!recent.length) {
+    feed.innerHTML = '<div class="empty-state"><p style="font-size:0.85rem">No events recorded yet</p></div>';
+    return;
+  }
+  feed.innerHTML = recent.map(e => {
+    const col = sevColor(e.severity);
     return `<div class="event-item" onclick="flyTo(${e.lat},${e.lng})">
-      <div class="event-dot" style="background:${c}"></div>
-      <div class="event-info">
-        <div class="type">${Fmt.eventType(e.type)}</div>
-        <div class="meta">${Fmt.date(e.timestamp)} · <span class="badge-severity ${e.severity}">${e.severity}</span></div>
+      <div class="event-line" style="background:${col}"></div>
+      <div>
+        <div style="font-weight:700;font-size:0.85rem">${Fmt.eventType(e.type)}</div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:2px">
+          ${Fmt.severity(e.severity)}
+          <span style="font-size:0.72rem;color:var(--text-muted)">${e.timestamp?Fmt.date(e.timestamp):''}</span>
+        </div>
       </div>
     </div>`;
   }).join('');
+}
+
+function flyTo(lat, lng) {
+  if (lat&&lng) aMap.flyTo([lat,lng], 16, {duration:1.0});
 }
 
 // Area search
@@ -237,10 +345,10 @@ document.getElementById('areaSearch').addEventListener('input', e => {
   if (q.length < 3) return;
   sTimeout = setTimeout(async () => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+' Kenya')}&limit=1`);
-      const data = await res.json();
-      if (data[0]) aMap.flyTo([parseFloat(data[0].lat), parseFloat(data[0].lon)], 14, { duration:1.2 });
-    } catch {}
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+' Kenya')}&limit=1`);
+      const d = await r.json();
+      if (d[0]) aMap.flyTo([parseFloat(d[0].lat),parseFloat(d[0].lon)], 14, {duration:1.2});
+    } catch(e){}
   }, 600);
 });
 

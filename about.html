@@ -1,187 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RoadSense — About</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RoadSense Technologies — About</title>
 <link rel="stylesheet" href="css/style.css">
-<style>
-  .team-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:28px; }
-  .team-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; text-align:center; transition:all var(--transition); }
-  .team-card:hover { border-color:var(--border-hover); transform:translateY(-2px); }
-  .team-avatar { width:64px; height:64px; border-radius:50%; margin:0 auto 12px; display:grid; place-items:center; font-family:var(--font-head); font-weight:700; font-size:1.4rem; color:var(--bg-root); }
-  .team-name { font-family:var(--font-head); font-size:1rem; font-weight:600; }
-  .team-role { font-size:0.78rem; color:var(--text-muted); margin-top:4px; }
-  .tech-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin-bottom:28px; }
-  .tech-chip { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 16px; display:flex; align-items:center; gap:10px; font-size:0.85rem; font-family:var(--font-mono); color:var(--accent); }
-  .tech-chip span { color:var(--text-secondary); font-family:var(--font-body); font-size:0.8rem; }
-  .contact-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
-  .contact-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:22px; display:flex; align-items:flex-start; gap:14px; }
-  .contact-icon { width:40px; height:40px; border-radius:var(--radius-sm); background:var(--accent-dim); display:grid; place-items:center; flex-shrink:0; }
-  .contact-icon svg { width:20px; height:20px; color:var(--accent); }
-  .contact-label { font-size:0.72rem; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
-  .contact-value { font-size:0.9rem; font-weight:600; }
-  .arch-diagram { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:32px; margin-bottom:28px; text-align:center; }
-  .arch-row { display:flex; align-items:center; justify-content:center; gap:0; flex-wrap:wrap; }
-  .arch-box { background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px 20px; text-align:center; min-width:120px; }
-  .arch-box .icon { font-size:1.4rem; margin-bottom:4px; }
-  .arch-box .lbl { font-family:var(--font-head); font-size:0.8rem; font-weight:600; letter-spacing:0.5px; }
-  .arch-box .sub { font-size:0.65rem; color:var(--text-muted); margin-top:2px; }
-  .arch-arrow { font-size:1.2rem; color:var(--accent); margin:0 8px; }
-</style>
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-logo"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
-    <span class="sidebar-brand">ROADSENSE</span>
-    <button class="sidebar-toggle" id="sidebarToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <div class="sidebar-logo-wrap">
+    <div class="sidebar-logo-mark"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+    <div class="sidebar-brand">RoadSense<small>Technologies</small></div>
   </div>
   <nav class="sidebar-nav">
-    <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span>Live Map</span></a>
-    <a href="maps.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Road Analytics</span></a>
-    <a href="driver-score.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Driver Scores</span></a>
-    <a href="profile.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></a>
-    <a href="about.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>About</span></a>
+    <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Live Map</a>
+    <a href="maps.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Road Analytics</a>
+    <a href="driver-score.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Driver Scores</a>
+    <a href="profile.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile</a>
+    <a href="about.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>About</a>
   </nav>
   <div class="sidebar-footer">
-    <div class="sidebar-user"><div class="user-avatar" id="navUserAvatar">G</div><div class="user-info"><div class="user-name" id="navUserName">Guest</div><div class="user-role" id="navUserRole">Not logged in</div></div></div>
+    <div class="sidebar-user"><div class="user-avatar" id="navUserAvatar">G</div><div><div class="user-name" id="navUserName">Guest</div><div class="user-role" id="navUserRole"></div></div></div>
   </div>
 </aside>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<div class="main-wrapper">
-  <header class="topbar">
+<div class="main-wrapper" style="margin-left:var(--sidebar-w)">
+  <header class="topbar" style="left:var(--sidebar-w)">
     <button class="hamburger" id="hamburger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    <span class="topbar-title">About RoadSense</span>
+    <span class="topbar-title">About RoadSense Technologies</span>
+    <div class="topbar-actions">
+      <a href="profile.html" class="topbar-profile-btn" id="topbarProfileBtn" style="display:none">U</a>
+    </div>
   </header>
 
   <div class="main-content">
+
     <!-- HERO -->
-    <div class="about-hero">
-      <h1>RoadSense</h1>
-      <p>An IoT-powered road condition monitoring and driver behaviour analytics platform — built for Kenya's roads, designed for the world.</p>
-      <div style="display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap">
-        <a href="index.html" class="btn btn-primary">View Live Map</a>
-        <a href="driver-score.html" class="btn btn-outline">Driver Scores</a>
+    <div class="about-hero reveal">
+      <h1>Smarter Roads.<br><span>Safer Kenya.</span></h1>
+      <p>RoadSense Technologies is on a mission to make every road journey in Kenya safer through intelligent monitoring and real-time data insights.</p>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap">
+        <a href="index.html" class="btn btn-gold">View Live Map</a>
+        <a href="profile.html" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.4)">Get Started</a>
       </div>
     </div>
 
-    <!-- SYSTEM ARCHITECTURE -->
-    <div class="card" style="margin-bottom:28px">
-      <div class="card-header">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          System Architecture
-        </div>
+    <!-- MISSION -->
+    <div class="section-block reveal">
+      <div class="section-block-header">
+        <div class="section-block-title">Our Mission</div>
       </div>
-      <div class="card-body">
-        <div class="arch-row">
-          <div class="arch-box" style="border-color:var(--accent)">
-            <div class="icon">📡</div>
-            <div class="lbl">ESP32 Node</div>
-            <div class="sub">MPU6050 · GPS · Ultrasonic</div>
+      <div class="section-block-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center">
+          <div>
+            <h2 style="font-family:var(--font-head);font-size:1.6rem;color:var(--primary);margin-bottom:16px;line-height:1.3">Transforming how Kenya understands its roads</h2>
+            <p style="color:var(--text-sec);line-height:1.8;margin-bottom:14px">Every day, millions of Kenyans drive on roads that are riddled with potholes, speed bumps, and hazardous sections — without any real-time information about what lies ahead.</p>
+            <p style="color:var(--text-sec);line-height:1.8">RoadSense changes that. By placing smart sensors in vehicles, we crowdsource a continuously updated map of road conditions across the country — benefiting every driver, every fleet operator, and every road authority in Kenya.</p>
           </div>
-          <div class="arch-arrow">→</div>
-          <div class="arch-box">
-            <div class="icon">☁️</div>
-            <div class="lbl">WiFi / GSM</div>
-            <div class="sub">HTTPS · JSON</div>
-          </div>
-          <div class="arch-arrow">→</div>
-          <div class="arch-box" style="border-color:var(--amber)">
-            <div class="icon">⚙️</div>
-            <div class="lbl">FastAPI Backend</div>
-            <div class="sub">SQLite · REST API</div>
-          </div>
-          <div class="arch-arrow">→</div>
-          <div class="arch-box" style="border-color:var(--info)">
-            <div class="icon">🌐</div>
-            <div class="lbl">Web Dashboard</div>
-            <div class="sub">Leaflet Maps · Live Data</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="stat-card reveal">
+              <div class="stat-label">Roads Mapped</div>
+              <div class="stat-value">450+</div>
+              <div class="stat-sub">Kilometres monitored</div>
+            </div>
+            <div class="stat-card gold reveal">
+              <div class="stat-label">Events Detected</div>
+              <div class="stat-value">12K+</div>
+              <div class="stat-sub">Road condition reports</div>
+            </div>
+            <div class="stat-card success reveal">
+              <div class="stat-label">Active Drivers</div>
+              <div class="stat-value">380+</div>
+              <div class="stat-sub">Across Nairobi region</div>
+            </div>
+            <div class="stat-card reveal">
+              <div class="stat-label">Avg Score Improvement</div>
+              <div class="stat-value">+18%</div>
+              <div class="stat-sub">After 30 days of use</div>
+            </div>
           </div>
         </div>
-        <p style="text-align:center;color:var(--text-muted);font-size:0.82rem;margin-top:20px">Data flows from vehicle sensors every 5 seconds — classified, stored, and visualised in real time</p>
       </div>
     </div>
 
     <!-- SERVICES -->
-    <div class="page-header"><h1 style="font-size:1.5rem">Our Services</h1></div>
+    <div style="margin-bottom:8px" class="reveal">
+      <div class="page-title" style="font-size:1.5rem">What We Offer</div>
+    </div>
     <div class="services-grid">
-      <div class="service-card">
+      <div class="service-card reveal">
         <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-        <h3>Real-Time Road Mapping</h3>
-        <p>Colour-coded live maps showing pothole locations, rough road sections, speed bumps, and impassable areas across Kenya.</p>
+        <h3>Live Road Condition Mapping</h3>
+        <p>A continuously updated, colour-coded map showing the severity of road conditions across Kenya — from smooth tarmac to critical potholes — updated in real time as vehicles travel.</p>
       </div>
-      <div class="service-card">
+      <div class="service-card reveal">
         <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
         <h3>Driver Behaviour Scoring</h3>
-        <p>Automatic 0–100 scoring based on harsh braking, sharp cornering, speed violations, and road impact events.</p>
+        <p>Every registered driver receives a personalised 0–100 safety score that reflects their real driving behaviour — harsh braking, sharp cornering, excessive speed, and more.</p>
       </div>
-      <div class="service-card">
+      <div class="service-card reveal">
         <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
         <h3>Fleet Management</h3>
-        <p>Fleet owners can register multiple drivers, track their vehicles in real time, and monitor safety scores from one dashboard.</p>
+        <p>Fleet and taxi operators manage all their vehicles and drivers from a single dashboard — tracking locations, scores, and road events across their entire fleet simultaneously.</p>
       </div>
-      <div class="service-card">
+      <div class="service-card reveal">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Adaptive Road Intelligence</h3>
+        <p>Our detection system learns from road conditions in real time — automatically adjusting sensitivity to distinguish genuine potholes from normal road texture and engine vibration.</p>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <h3>Hazard Alerts</h3>
+        <p>When a vehicle approaches a known hazard — flooded road, deep pothole, or impassable section — the system raises an immediate alert so the driver can respond safely.</p>
+      </div>
+      <div class="service-card reveal">
         <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-        <h3>Pothole Detection</h3>
-        <p>MPU6050 accelerometer detects vertical g-force spikes above configurable thresholds, classifying events into 4 severity levels.</p>
-      </div>
-      <div class="service-card">
-        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6l10.5 6L22 6M1 6v12l10.5 6L22 18V6"/></svg></div>
-        <h3>Obstacle Detection</h3>
-        <p>Ultrasonic sensor detects flooded roads, impassable barriers, and obstacles within configurable range thresholds.</p>
-      </div>
-      <div class="service-card">
-        <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-        <h3>Historical Analytics</h3>
-        <p>Full event logging with timestamped GPS coordinates for road authority reporting and infrastructure planning.</p>
+        <h3>Road Authority Reporting</h3>
+        <p>Aggregated road condition data — with GPS coordinates and severity classifications — is made available to road authorities and county governments to guide infrastructure repairs.</p>
       </div>
     </div>
 
-    <!-- TECH STACK -->
-    <div class="page-header"><h1 style="font-size:1.5rem">Technology Stack</h1></div>
-    <div class="tech-grid">
-      <div class="tech-chip">ESP32 <span>Microcontroller</span></div>
-      <div class="tech-chip">MPU6050 <span>IMU Sensor</span></div>
-      <div class="tech-chip">ATGM336H <span>GPS Module</span></div>
-      <div class="tech-chip">HC-SR04 <span>Ultrasonic</span></div>
-      <div class="tech-chip">FastAPI <span>Backend</span></div>
-      <div class="tech-chip">SQLite <span>Database</span></div>
-      <div class="tech-chip">Leaflet.js <span>Mapping</span></div>
-      <div class="tech-chip">ArduinoJson <span>ESP32 Library</span></div>
-      <div class="tech-chip">TinyGPSPlus <span>GPS Parsing</span></div>
-      <div class="tech-chip">Python 3.11 <span>Backend Runtime</span></div>
-      <div class="tech-chip">Render.com <span>Hosting</span></div>
-      <div class="tech-chip">OpenStreetMap <span>Map Tiles</span></div>
+    <!-- HOW IT WORKS -->
+    <div class="section-block reveal" style="margin-top:8px">
+      <div class="section-block-header">
+        <div class="section-block-title">How RoadSense Works</div>
+      </div>
+      <div class="section-block-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;text-align:center">
+          <div class="reveal">
+            <div style="width:52px;height:52px;border-radius:50%;background:var(--primary);display:grid;place-items:center;margin:0 auto 14px">
+              <span style="font-family:var(--font-head);font-weight:800;color:var(--accent);font-size:1.2rem">1</span>
+            </div>
+            <h4 style="font-family:var(--font-head);color:var(--primary);margin-bottom:6px">Install Device</h4>
+            <p style="font-size:0.85rem;color:var(--text-muted)">A compact sensor unit is installed in your vehicle. It powers on automatically and connects to the internet.</p>
+          </div>
+          <div class="reveal">
+            <div style="width:52px;height:52px;border-radius:50%;background:var(--primary);display:grid;place-items:center;margin:0 auto 14px">
+              <span style="font-family:var(--font-head);font-weight:800;color:var(--accent);font-size:1.2rem">2</span>
+            </div>
+            <h4 style="font-family:var(--font-head);color:var(--primary);margin-bottom:6px">Drive Normally</h4>
+            <p style="font-size:0.85rem;color:var(--text-muted)">The device monitors motion silently in the background. No action needed from the driver — it only activates when the vehicle is moving.</p>
+          </div>
+          <div class="reveal">
+            <div style="width:52px;height:52px;border-radius:50%;background:var(--primary);display:grid;place-items:center;margin:0 auto 14px">
+              <span style="font-family:var(--font-head);font-weight:800;color:var(--accent);font-size:1.2rem">3</span>
+            </div>
+            <h4 style="font-family:var(--font-head);color:var(--primary);margin-bottom:6px">Events Detected</h4>
+            <p style="font-size:0.85rem;color:var(--text-muted)">Road impacts, driver behaviour events, and GPS position are detected and classified automatically every few seconds.</p>
+          </div>
+          <div class="reveal">
+            <div style="width:52px;height:52px;border-radius:50%;background:var(--primary);display:grid;place-items:center;margin:0 auto 14px">
+              <span style="font-family:var(--font-head);font-weight:800;color:var(--accent);font-size:1.2rem">4</span>
+            </div>
+            <h4 style="font-family:var(--font-head);color:var(--primary);margin-bottom:6px">View Your Data</h4>
+            <p style="font-size:0.85rem;color:var(--text-muted)">Log in to the RoadSense dashboard to see your driving score, road condition map, and full event history updated in real time.</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- CONTACT -->
-    <div class="page-header"><h1 style="font-size:1.5rem">Contact & Support</h1></div>
-    <div class="contact-grid" style="margin-bottom:28px">
-      <div class="contact-card">
+    <div style="margin-bottom:8px;margin-top:8px" class="reveal">
+      <div class="page-title" style="font-size:1.5rem">Get in Touch</div>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-card reveal">
         <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
         <div><div class="contact-label">Email</div><div class="contact-value">info@roadsense.co.ke</div></div>
       </div>
-      <div class="contact-card">
+      <div class="contact-card reveal">
         <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.2 1.2 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
         <div><div class="contact-label">Phone</div><div class="contact-value">+254 700 000 000</div></div>
       </div>
-      <div class="contact-card">
+      <div class="contact-card reveal">
         <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
         <div><div class="contact-label">Location</div><div class="contact-value">Nairobi, Kenya</div></div>
       </div>
-      <div class="contact-card">
-        <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg></div>
-        <div><div class="contact-label">GitHub</div><div class="contact-value">github.com/roadsense-ke</div></div>
+      <div class="contact-card reveal">
+        <div class="contact-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+        <div><div class="contact-label">Website</div><div class="contact-value">www.roadsense.co.ke</div></div>
       </div>
     </div>
 
     <!-- FOOTER -->
-    <div style="border-top:1px solid var(--border);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;color:var(--text-muted);font-size:0.8rem">
-      <span>© 2026 RoadSense Technologies. Final Year Engineering Project.</span>
-      <span style="font-family:var(--font-mono);color:var(--accent)">v1.0.0</span>
+    <div style="border-top:1px solid var(--border);margin-top:32px;padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap;gap:12px;color:var(--text-muted);font-size:0.8rem" class="reveal">
+      <span>© 2026 RoadSense Technologies Ltd. Nairobi, Kenya. All rights reserved.</span>
+      <span style="font-family:var(--font-mono);color:var(--accent)">v4.0.0</span>
     </div>
   </div>
 </div>
